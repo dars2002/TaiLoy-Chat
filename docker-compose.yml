@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+    frontend:
+        build:
+            context: .
+            dockerfile: dockerfile.react  
+        container_name: container_presentation
+        stdin_open: true
+        ports:
+        - "3000:3000"
+        restart: always
+        links:
+        - database
+        volumes:
+        - .:/usr/src/app
+        networks:
+        - mern-app
+    webapp:
+      container_name: container_app
+      restart: always
+      build:
+        context: ./server
+        dockerfile: dockerfile.node
+      stdin_open: true
+      ports:
+          - "5000:5000"
+      links:
+        - database
+      volumes:
+        - .:/usr/src/app
+      networks:
+        - mern-app
+      depends_on:
+        - database
+    database:
+      container_name: container_data
+      image: mongo
+      ports:
+        - "27019:27017"
+      networks:
+        - mern-app
+      volumes:
+        - mongo-data:/data/db
+
+
+
+
+networks:
+    mern-app:
+      driver: bridge
+volumes:
+  mongo-data:
+     driver: local
